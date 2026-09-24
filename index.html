@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#11150f">
+<title>Belle Ringer Counter</title>
+<style>
+*{box-sizing:border-box} html{-webkit-text-size-adjust:100%;text-size-adjust:100%} button,a,input{touch-action:manipulation} body{margin:0;background:#0b0e0a;color:#e8e0c8;font-family:Impact,"Arial Narrow",system-ui,sans-serif}
+.wrap{max-width:780px;margin:auto;padding:14px}.app{background:#11150f;border:2px solid #68753a;padding:14px;background-image:linear-gradient(135deg,rgba(113,126,66,.08) 25%,transparent 25%),linear-gradient(315deg,rgba(113,126,66,.05) 25%,transparent 25%);background-size:26px 26px}
+.field{background:#11140f;border:2px solid #718044;box-shadow:inset 0 0 0 2px #252b1d;padding:14px}.label{color:#ded6b9;letter-spacing:.08em;text-transform:uppercase}.gold{color:#f3ad32}.muted{color:#aaa88f;font-family:system-ui,sans-serif;font-size:12px}
+.header{display:flex;justify-content:space-between;gap:10px;border-bottom:2px solid #68753a;padding-bottom:12px}.title{font-size:34px}.f3{border:2px solid #718044;border-radius:50%;width:56px;height:56px;display:grid;place-items:center;font-size:20px}
+.grid{display:grid;gap:14px;margin-top:14px}@media(min-width:650px){.grid{grid-template-columns:.8fr 1.2fr}}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.center{text-align:center}
+button,input,a.submit{font:inherit;border-radius:0}.ctl{background:#151a12;border:2px solid #718044;color:#f3ad32;min-height:48px;padding:8px 14px}.roundctl{width:52px;font-size:28px}.num{font-size:64px;line-height:1}.score{font-size:76px;line-height:1}.stations{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}@media(min-width:500px){.stations{grid-template-columns:repeat(5,1fr)}}
+.station{background:#151a12;border:2px solid #718044;color:#eee5ca;min-height:72px;padding:7px;text-transform:uppercase}.station.active{background:#59662f;border-color:#f3ad32}.station .n{display:block;color:#f3ad32;font-size:22px}.partial{display:flex;gap:8px;margin-top:10px}.partial input{min-width:0;width:100%;background:#0d100c;border:2px solid #718044;color:#f3ad32;text-align:center;font-size:24px}
+.primary{width:100%;background:#59662f;border:2px solid #f3ad32;color:#fff7df;min-height:56px;text-transform:uppercase;letter-spacing:.06em}.submit{display:flex;align-items:center;justify-content:center;background:#f3ad32;border:2px solid #f3ad32;color:#11150f;min-height:60px;text-decoration:none;text-transform:uppercase;letter-spacing:.05em;margin-top:12px}
+.secondary{width:100%;background:#151a12;border:2px solid #718044;color:#f3ad32;min-height:48px}.danger{width:100%;background:#151a12;border:2px solid #8a6445;color:#e5c7a8;min-height:48px}.actions{display:grid;gap:8px;margin-top:14px}@media(min-width:500px){.actions{grid-template-columns:1fr 1fr}}.hidden{display:none}.stripe{height:4px;background:repeating-linear-gradient(90deg,#718044 0 24px,transparent 24px 31px);margin:10px 0}.sequence{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px}.sequence>div{border:1px solid #718044;padding:7px 2px;text-align:center;font-size:11px}.sequence strong{display:block;color:#f3ad32;font-size:22px}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #f3ad32;outline-offset:2px}
+</style>
+</head>
+<body><main class="wrap"><div class="app">
+<div class="stripe"></div>
+<header class="header"><div><div class="label" style="font-size:12px">IPC Week 3</div><div class="label title">“BELLE” RINGER</div></div><div class="f3">F³</div></header>
+
+<section id="active">
+<div class="grid">
+<div class="field center"><div class="label">Completed Circuits</div><div class="row" style="margin-top:12px"><button type="button" id="rm" class="ctl roundctl">−</button><div><div id="rounds" class="gold num">0</div><div class="muted">× 125 REPS</div></div><button type="button" id="rp" class="ctl roundctl">+</button></div><hr style="border-color:#68753a"><div class="label">Live Total</div><div id="total" class="gold score">0</div><div id="breakdown" class="muted"></div></div>
+<div><div class="row"><div><div class="label">Current Circuit</div><div class="muted">Tap the last fully completed movement.</div></div><button type="button" id="clear" class="ctl">CLEAR</button></div><div id="stations" class="stations" style="margin-top:8px"></div>
+<div class="field" style="margin-top:10px"><div class="label">Partial Reps — Next Movement</div><div id="next" class="muted"></div><div class="partial"><button type="button" id="pm" class="ctl roundctl">−</button><input id="partial" type="number" inputmode="numeric" min="0" value="0"><button type="button" id="pp" class="ctl roundctl">+</button></div></div></div>
+</div>
+<div class="field" style="margin-top:14px"><button type="button" id="finalize" class="primary">FINALIZE SCORE</button><div class="muted center" style="margin-top:7px">Locks your score so accidental taps cannot change it.</div></div>
+</section>
+
+<section id="confirm" class="field center hidden" style="margin-top:14px"><div class="label">Confirm Final Score</div><div id="confirmScore" class="gold score">0</div><div id="confirmDetail" class="muted"></div><div class="actions"><button type="button" id="back" class="secondary">GO BACK</button><button type="button" id="lock" class="primary">CONFIRM & LOCK</button></div></section>
+
+<section id="final" class="hidden" style="margin-top:14px"><div class="field center"><div class="label">Final Score</div><div id="finalScore" class="gold" style="font-size:90px;line-height:1">0</div><div class="label">🔒 SCORE FINALIZED</div><div id="finalDetail" class="muted" style="margin-top:8px"></div></div>
+<a class="submit" href="https://ironpax.f3greenwood.org/submit" target="_blank" rel="noopener noreferrer">SUBMIT SCORE → IRONPAX</a><div class="muted center" style="margin-top:7px">Your finalized score stays saved on this device.</div>
+<div class="actions"><button type="button" id="unlock" class="secondary">UNLOCK / EDIT SCORE</button><button type="button" id="new" class="danger">START NEW WORKOUT</button></div></section>
+
+<section class="field" style="margin-top:16px"><div class="label">Field Sequence • Rifle Carry Out • Farmer Carry In</div><div class="sequence"><div><strong>10</strong>WE'RE NOT<br>WORTHY</div><div><strong>15</strong>GOBLET<br>SQUATS</div><div><strong>20</strong>OH TRICEP<br>EXT.</div><div><strong>25</strong>KB<br>SWINGS</div><div><strong>30</strong>CURLS</div></div><div class="center" style="margin-top:10px"><span class="gold">5 MANMAKERS</span> <span class="muted">AT CONE 1 AFTER EVERY OUTER STATION</span></div></section>
+<div class="row" style="margin-top:12px;font-size:12px"><span class="label">45 MINUTE AMRAP</span><span class="gold">125 REPS = ONE COMPLETE CIRCUIT</span></div><div class="stripe"></div>
+</div></main>
+<script>
+(()=>{
+const steps=[["5 MM",5],["10 WNW",10],["5 MM",5],["15 SQUATS",15],["5 MM",5],["20 TRICEPS",20],["5 MM",5],["25 SWINGS",25],["5 MM",5],["30 CURLS",30]];
+const KEY="belleRingerStateV1"; let state={rounds:0,last:-1,partial:0,finalized:false,finalScore:null};
+const $=id=>document.getElementById(id), stations=$("stations");
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));if(x)state=Object.assign({},state,x)}catch(e){}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+function full(){return steps.slice(0,state.last+1).reduce((a,x)=>a+x[1],0)}
+function maxp(){return state.last<steps.length-1?steps[state.last+1][1]:0}
+function total(){return state.rounds*125+full()+state.partial}
+function view(which){["active","confirm","final"].forEach(x=>$(x).classList.toggle("hidden",x!==which))}
+steps.forEach((s,i)=>{let b=document.createElement("button");b.className="station";b.innerHTML=`<span class="n">${s[1]}</span>${s[0].replace(/^\d+ /,"")}<span class="muted" style="display:block">STEP ${i+1}</span>`;b.onclick=()=>{state.last=i;state.partial=0;save();render()};stations.appendChild(b)});
+function render(){
+ state.rounds=Math.max(0,Math.min(999,+state.rounds||0));state.last=Number.isFinite(+state.last)?Math.max(-1,Math.min(9,+state.last)):-1;state.partial=Math.max(0,Math.min(maxp(),+state.partial||0));
+ [...stations.children].forEach((b,i)=>b.classList.toggle("active",i<=state.last));
+ $("rounds").textContent=state.rounds;$("partial").value=state.partial;
+ const cur=full()+state.partial, base=state.rounds*125;
+ $("total").textContent=base+cur;$("breakdown").textContent=`${base} circuit reps + ${cur} current reps`;
+ const done=state.last===9;$("next").textContent=done?"CIRCUIT COMPLETE — ADD IT TO COMPLETED CIRCUITS":`NEXT: ${steps[state.last+1][0]} • ENTER 0–${steps[state.last+1][1]}`;
+ ["partial","pm","pp"].forEach(id=>$(id).disabled=done);
+ if(state.finalized){$("finalScore").textContent=state.finalScore;$("finalDetail").textContent=`${state.rounds} complete circuit${state.rounds===1?"":"s"} × 125 + ${cur} partial-circuit reps`;view("final")}else view("active");
+}
+function setp(n){state.partial=Math.max(0,Math.min(maxp(),n));save();render()}
+$("rp").onclick=()=>{state.rounds++;save();render()};$("rm").onclick=()=>{state.rounds=Math.max(0,state.rounds-1);save();render()};
+$("clear").onclick=()=>{state.last=-1;state.partial=0;save();render()};$("pp").onclick=()=>setp(state.partial+1);$("pm").onclick=()=>setp(state.partial-1);
+$("partial").oninput=e=>setp(parseInt(e.target.value,10)||0);
+$("finalize").onclick=()=>{$("confirmScore").textContent=total();$("confirmDetail").textContent=`${state.rounds} complete circuit${state.rounds===1?"":"s"} × 125 + ${full()+state.partial} partial-circuit reps`;view("confirm")};
+$("back").onclick=()=>view("active");$("lock").onclick=()=>{state.finalScore=total();state.finalized=true;save();render()};
+$("unlock").onclick=()=>{if(confirm("Unlock this finalized score for editing?")){state.finalized=false;state.finalScore=null;save();render()}};
+$("new").onclick=()=>{if(confirm("Start a new workout? This erases the saved Belle Ringer score on this device.")){state={rounds:0,last:-1,partial:0,finalized:false,finalScore:null};save();render()}};
+
+// iOS/Safari field-use fix: suppress rapid multi-tap zoom on interactive controls only.
+// Normal page pinch-to-zoom remains available for accessibility.
+let lastControlTouchEnd=0;
+document.addEventListener("touchend",function(e){
+  const control=e.target.closest("button,a.submit,input");
+  if(!control)return;
+  const now=Date.now();
+  if(now-lastControlTouchEnd<=350)e.preventDefault();
+  lastControlTouchEnd=now;
+},{passive:false});
+
+load();render();
+})();
+</script></body></html>
